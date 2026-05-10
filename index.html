@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vérif-IA — Vérificateur de faits pour l'IA</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&family=DM+Serif+Display&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #F7F5F0;
+      --surface: #FFFFFF;
+      --surface2: #EDEAE4;
+      --border: rgba(0,0,0,0.09);
+      --border2: rgba(0,0,0,0.15);
+      --text: #1C1C1A;
+      --text2: #6B6B67;
+      --text3: #9B9B97;
+      --red: #A32D2D;
+      --red-dark: #791F1F;
+      --red-light: #FAECE7;
+      --red-border: #F09595;
+      --r: 12px;
+      --r-sm: 8px;
+    }
+
+    [data-theme="dark"] {
+      --bg: #131311;
+      --surface: #1D1D1B;
+      --surface2: #252522;
+      --border: rgba(255,255,255,0.08);
+      --border2: rgba(255,255,255,0.14);
+      --text: #F0EDE8;
+      --text2: #9B9B97;
+      --text3: #5B5B57;
+      --red: #E24B4A;
+      --red-dark: #F09595;
+      --red-light: #2A1212;
+      --red-border: #5C2020;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      transition: background 0.25s, color 0.25s;
+      line-height: 1.6;
+    }
+
+    /* NAV */
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 32px;
+      background: var(--surface);
+      border-bottom: 0.5px solid var(--border);
+      transition: background 0.25s;
+    }
+    .nav-logo { display: flex; align-items: center; gap: 9px; text-decoration: none; }
+    .logo-box {
+      width: 30px; height: 30px; background: var(--red);
+      border-radius: var(--r-sm); display: flex; align-items: center; justify-content: center;
+      transition: background 0.25s;
+    }
+    .logo-box svg { width: 16px; height: 16px; stroke: #FAECE7; fill: none; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+    .nav-brand { font-size: 16px; font-weight: 600; color: var(--text); }
+    .nav-right { display: flex; align-items: center; gap: 10px; }
+    .theme-toggle {
+      width: 34px; height: 34px; border-radius: var(--r-sm);
+      background: var(--surface2); border: 0.5px solid var(--border2);
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; color: var(--text2); font-size: 16px;
+      transition: background 0.15s;
+    }
+    .theme-toggle:hover { background: var(--border); }
+    .nav-links { display: flex; gap: 24px; }
+    .nav-links a { font-size: 14px; color: var(--text2); text-decoration: none; transition: color 0.15s; }
+    .nav-links a:hover { color: var(--text); }
+    .btn-cta {
+      background: var(--red); color: #fff; border: none;
+      border-radius: var(--r-sm); padding: 9px 20px;
+      font-size: 14px; font-weight: 500; font-family: inherit;
+      cursor: pointer; transition: background 0.15s;
+      text-decoration: none; display: inline-block;
+    }
+    .btn-cta:hover { background: var(--red-dark); }
+
+    /* HERO */
+    .hero {
+      text-align: center;
+      padding: 5rem 24px 4rem;
+      max-width: 720px; margin: 0 auto;
+    }
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: var(--red-light); border: 0.5px solid var(--red-border);
+      border-radius: 20px; padding: 5px 14px;
+      font-size: 12px; color: var(--red); font-weight: 500;
+      margin-bottom: 1.75rem;
+      animation: fadeUp 0.5s ease both;
+    }
+    .hero h1 {
+      font-family: 'DM Serif Display', serif;
+      font-size: clamp(36px, 6vw, 56px);
+      font-weight: 400; line-height: 1.15;
+      color: var(--text); margin-bottom: 1.25rem;
+      letter-spacing: -0.5px;
+      animation: fadeUp 0.5s 0.1s ease both;
+    }
+    .hero h1 em { font-style: italic; color: var(--red); }
+    .hero p {
+      font-size: 16px; color: var(--text2);
+      max-width: 480px; margin: 0 auto 2.25rem;
+      line-height: 1.75;
+      animation: fadeUp 0.5s 0.2s ease both;
+    }
+    .hero-btns {
+      display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;
+      animation: fadeUp 0.5s 0.3s ease both;
+    }
+    .btn-primary {
+      background: var(--red); color: #fff; border: none;
+      border-radius: var(--r); padding: 13px 28px;
+      font-size: 15px; font-weight: 500; font-family: inherit;
+      cursor: pointer; transition: background 0.15s;
+      display: inline-flex; align-items: center; gap: 8px;
+    }
+    .btn-primary:hover { background: var(--red-dark); }
+    .btn-ghost {
+      background: transparent; color: var(--text2);
+      border: 0.5px solid var(--border2); border-radius: var(--r);
+      padding: 13px 28px; font-size: 15px; font-family: inherit;
+      cursor: pointer; transition: background 0.15s, color 0.15s;
+    }
+    .btn-ghost:hover { background: var(--surface2); color: var(--text); }
+    .hero-note { font-size: 12px; color: var(--text3); margin-top: 14px; animation: fadeUp 0.5s 0.4s ease both; }
+
+    /* DEMO */
+    .demo-wrap {
+      max-width: 640px; margin: 0 auto 5rem;
+      padding: 0 24px;
+      animation: fadeUp 0.6s 0.4s ease both;
+    }
+    .demo-card {
+      background: var(--surface); border: 0.5px solid var(--border2);
+      border-radius: var(--r); overflow: hidden;
+    }
+    .demo-bar {
+      background: var(--surface2); border-bottom: 0.5px solid var(--border);
+      padding: 10px 16px; display: flex; align-items: center; gap: 8px;
+    }
+    .demo-dot { width: 10px; height: 10px; border-radius: 50%; }
+    .demo-title { font-size: 12px; color: var(--text3); margin-left: 4px; }
+    .demo-body { padding: 1.25rem 1.5rem; }
+    .demo-label { font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 10px; }
+    .demo-text { font-size: 14px; line-height: 1.9; color: var(--text); }
+    .false-mark {
+      background: var(--red-light); border-bottom: 1.5px solid var(--red-border);
+      border-radius: 3px; padding: 1px 3px; position: relative; cursor: help;
+    }
+    .false-mark .tip {
+      display: none; position: absolute; left: 0; top: calc(100% + 6px);
+      background: var(--surface); border: 0.5px solid var(--border2);
+      border-radius: var(--r-sm); padding: 8px 12px;
+      font-size: 12px; color: var(--text2); width: 220px; z-index: 10; line-height: 1.5;
+    }
+    .false-mark:hover .tip { display: block; }
+    .demo-footer {
+      border-top: 0.5px solid var(--border);
+      padding: 10px 1.5rem; display: flex; align-items: center; gap: 8px;
+      font-size: 12px; color: var(--text3);
+    }
+    .demo-stat { display: flex; align-items: center; gap: 5px; }
+    .demo-stat-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--red-border); }
+
+    /* SECTION */
+    section { padding: 4rem 24px; max-width: 720px; margin: 0 auto; }
+    .section-eyebrow {
+      font-size: 12px; font-weight: 500; color: var(--red);
+      text-transform: uppercase; letter-spacing: 0.7px; margin-bottom: 0.75rem;
+    }
+    .section-title { font-family: 'DM Serif Display', serif; font-size: 30px; font-weight: 400; color: var(--text); margin-bottom: 0.75rem; }
+    .section-sub { font-size: 15px; color: var(--text2); max-width: 460px; line-height: 1.7; margin-bottom: 2rem; }
+
+    /* FEATURES */
+    .features-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    .feat {
+      background: var(--surface); border: 0.5px solid var(--border);
+      border-radius: var(--r); padding: 1.25rem;
+      transition: border-color 0.15s;
+    }
+    .feat:hover { border-color: var(--border2); }
+    .feat-icon {
+      width: 36px; height: 36px; border-radius: var(--r-sm);
+      background: var(--red-light); display: flex; align-items: center; justify-content: center;
+      margin-bottom: 12px;
+    }
+    .feat-icon svg { width: 18px; height: 18px; stroke: var(--red); fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+    .feat h3 { font-size: 14px; font-weight: 500; color: var(--text); margin-bottom: 5px; }
+    .feat p { font-size: 13px; color: var(--text2); line-height: 1.55; }
+
+    /* HOW IT WORKS */
+    .steps { display: flex; flex-direction: column; gap: 0; }
+    .step { display: flex; gap: 20px; padding: 1.5rem 0; border-bottom: 0.5px solid var(--border); }
+    .step:last-child { border-bottom: none; }
+    .step-num {
+      width: 32px; height: 32px; border-radius: 50%;
+      background: var(--red-light); color: var(--red);
+      font-size: 13px; font-weight: 600; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .step-body h3 { font-size: 15px; font-weight: 500; color: var(--text); margin-bottom: 4px; }
+    .step-body p { font-size: 13px; color: var(--text2); line-height: 1.6; }
+
+    /* PRICING */
+    .plans { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; margin-top: 2rem; }
+    .plan {
+      background: var(--surface); border: 0.5px solid var(--border);
+      border-radius: var(--r); padding: 1.5rem;
+      display: flex; flex-direction: column; gap: 0;
+      transition: border-color 0.15s;
+    }
+    .plan.featured { border: 2px solid var(--red); }
+    .plan-top { margin-bottom: 1rem; }
+    .plan-badge {
+      display: inline-block; font-size: 11px; font-weight: 500;
+      background: var(--red-light); color: var(--red);
+      border-radius: 4px; padding: 3px 10px; margin-bottom: 10px;
+    }
+    .plan-name { font-size: 14px; font-weight: 500; color: var(--text); margin-bottom: 6px; }
+    .plan-price { font-size: 32px; font-weight: 600; color: var(--text); line-height: 1; }
+    .plan-price sub { font-size: 14px; font-weight: 400; color: var(--text2); vertical-align: baseline; }
+    .plan-limit { font-size: 12px; color: var(--text3); margin-top: 4px; margin-bottom: 1rem; }
+    .plan-divider { border: none; border-top: 0.5px solid var(--border); margin-bottom: 1rem; }
+    .plan-features { list-style: none; display: flex; flex-direction: column; gap: 8px; flex: 1; }
+    .plan-features li { font-size: 13px; color: var(--text2); display: flex; align-items: flex-start; gap: 8px; line-height: 1.4; }
+    .plan-features li svg { width: 14px; height: 14px; stroke: var(--red); fill: none; stroke-width: 2.5; stroke-linecap: round; flex-shrink: 0; margin-top: 1px; }
+    .plan-btn {
+      margin-top: 1.25rem; width: 100%; padding: 10px;
+      border-radius: var(--r-sm); font-size: 14px; font-weight: 500;
+      font-family: inherit; cursor: pointer; transition: background 0.15s;
+    }
+    .plan-btn-ghost { background: transparent; border: 0.5px solid var(--border2); color: var(--text); }
+    .plan-btn-ghost:hover { background: var(--surface2); }
+    .plan-btn-filled { background: var(--red); border: none; color: #fff; }
+    .plan-btn-filled:hover { background: var(--red-dark); }
+
+    /* CTA */
+    .cta-section {
+      background: var(--surface); border-top: 0.5px solid var(--border);
+      border-bottom: 0.5px solid var(--border);
+      padding: 4rem 24px; text-align: center;
+    }
+    .cta-section h2 { font-family: 'DM Serif Display', serif; font-size: 32px; font-weight: 400; margin-bottom: 10px; }
+    .cta-section p { font-size: 15px; color: var(--text2); margin-bottom: 1.75rem; }
+    .email-row { display: flex; gap: 10px; max-width: 400px; margin: 0 auto; }
+    .email-row input {
+      flex: 1; padding: 12px 16px; border: 0.5px solid var(--border2);
+      border-radius: var(--r); font-size: 14px; font-family: inherit;
+      background: var(--bg); color: var(--text); outline: none;
+      transition: border-color 0.15s;
+    }
+    .email-row input:focus { border-color: var(--red); }
+    .cta-note { font-size: 12px; color: var(--text3); margin-top: 10px; }
+
+    /* FOOTER */
+    footer {
+      padding: 1.5rem 32px; display: flex; align-items: center;
+      justify-content: space-between; flex-wrap: wrap; gap: 10px;
+    }
+    .footer-left { display: flex; align-items: center; gap: 8px; }
+    .footer-brand { font-size: 14px; font-weight: 500; color: var(--text); }
+    .footer-links { display: flex; gap: 20px; }
+    .footer-links a { font-size: 13px; color: var(--text3); text-decoration: none; transition: color 0.15s; }
+    .footer-links a:hover { color: var(--text2); }
+    .footer-copy { font-size: 12px; color: var(--text3); }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 520px) {
+      nav { padding: 12px 16px; }
+      .nav-links { display: none; }
+      .hero { padding: 3rem 16px 2.5rem; }
+      section { padding: 3rem 16px; }
+      .email-row { flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-logo" href="#">
+    <div class="logo-box">
+      <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+    </div>
+    <span class="nav-brand">Vérif-IA</span>
+  </a>
+  <div class="nav-links">
+    <a href="#fonctionnalites">Fonctionnalités</a>
+    <a href="#comment">Comment ça marche</a>
+    <a href="#tarifs">Tarifs</a>
+  </div>
+  <div class="nav-right">
+    <button class="theme-toggle" onclick="toggleTheme()" aria-label="Changer de thème" id="themeBtn">
+      🌙
+    </button>
+    <a class="btn-cta" href="#cta">Commencer gratuitement</a>
+  </div>
+</nav>
+
+<div class="hero">
+  <div class="hero-badge">
+    ✦ Bêta publique — accès gratuit
+  </div>
+  <h1>L'IA peut se tromper.<br><em>Vous, non.</em></h1>
+  <p>Vérif-IA analyse chaque affirmation de vos réponses d'IA et surligne instantanément ce qui est faux — avant que vous ne le partagiez ou l'utilisiez.</p>
+  <div class="hero-btns">
+    <button class="btn-primary" onclick="document.getElementById('cta').scrollIntoView({behavior:'smooth'})">
+      ✦ Essayer gratuitement
+    </button>
+    <button class="btn-ghost" onclick="document.getElementById('comment').scrollIntoView({behavior:'smooth'})">
+      Voir comment ça marche
+    </button>
+  </div>
+  <p class="hero-note">Aucune carte bancaire requise · 5 analyses offertes par jour</p>
+</div>
+
+<div class="demo-wrap">
+  <div class="demo-card">
+    <div class="demo-bar">
+      <div class="demo-dot" style="background:#F09595"></div>
+      <div class="demo-dot" style="background:#EF9F27"></div>
+      <div class="demo-dot" style="background:#97C459"></div>
+      <span class="demo-title">Exemple d'analyse — texte sur les Vikings</span>
+    </div>
+    <div class="demo-body">
+      <div class="demo-label">Résultat de l'analyse</div>
+      <div class="demo-text">
+        Les Vikings étaient des explorateurs nordiques actifs entre le VIIIe et le XIe siècle.
+        <span class="false-mark">Ils portaient des casques à cornes au combat, une tradition confirmée par de nombreuses découvertes archéologiques en Scandinavie.<span class="tip">❌ Aucun casque à cornes fonctionnel n'a jamais été retrouvé. C'est un mythe populaire.</span></span>
+        Leur société était organisée en clans et ils excellaient dans la construction navale.
+        <span class="false-mark">Ils auraient également inventé l'imprimerie avant Gutenberg au XVe siècle.<span class="tip">❌ L'imprimerie à caractères mobiles a été inventée par Gutenberg vers 1450, pas par les Vikings.</span></span>
+        Leur influence s'est étendue jusqu'en Amérique du Nord et en Russie.
+      </div>
+    </div>
+    <div class="demo-footer">
+      <div class="demo-stat"><div class="demo-stat-dot"></div> 2 erreurs détectées</div>
+      <div style="flex:1"></div>
+      <span>Fiabilité estimée : 60%</span>
+    </div>
+  </div>
+</div>
+
+<section id="fonctionnalites">
+  <div class="section-eyebrow">Fonctionnalités</div>
+  <div class="section-title">Tout ce dont vous avez besoin</div>
+  <div class="section-sub">Un outil simple, rapide et précis pour ne plus jamais diffuser une information fausse générée par une IA.</div>
+  <div class="features-grid">
+    <div class="feat">
+      <div class="feat-icon">
+        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      </div>
+      <h3>Détection instantanée</h3>
+      <p>Collez votre texte et obtenez les résultats en quelques secondes grâce à l'IA.</p>
+    </div>
+    <div class="feat">
+      <div class="feat-icon">
+        <svg viewBox="0 0 24 24"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+      </div>
+      <h3>Surlignage précis</h3>
+      <p>Seules les affirmations fausses sont marquées. Le reste reste intact.</p>
+    </div>
+    <div class="feat">
+      <div class="feat-icon">
+        <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+      </div>
+      <h3>Explication claire</h3>
+      <p>Survolez chaque erreur pour comprendre pourquoi c'est faux et ce qui est correct.</p>
+    </div>
+    <div class="feat">
+      <div class="feat-icon">
+        <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+      </div>
+      <h3>Export PDF</h3>
+      <p>Exportez vos analyses pour les partager ou les archiver facilement.</p>
+    </div>
+    <div class="feat">
+      <div class="feat-icon">
+        <svg viewBox="0 0 24 24"><polyline points="12 20 12 10"/><polyline points="18 20 18 4"/><polyline points="6 20 6 16"/></svg>
+      </div>
+      <h3>Score de fiabilité</h3>
+      <p>Un pourcentage global vous indique à quel point le texte analysé est fiable.</p>
+    </div>
+    <div class="feat">
+      <div class="feat-icon">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      </div>
+      <h3>Historique complet</h3>
+      <p>Retrouvez toutes vos analyses passées pour les comparer ou les réutiliser.</p>
+    </div>
+  </div>
+</section>
+
+<section id="comment" style="background: var(--surface); border-top: 0.5px solid var(--border); border-bottom: 0.5px solid var(--border); max-width: 100%; padding: 4rem 24px;">
+  <div style="max-width: 640px; margin: 0 auto;">
+    <div class="section-eyebrow">Comment ça marche</div>
+    <div class="section-title">Simple comme un copier-coller</div>
+    <div class="section-sub">Pas de configuration, pas de compte requis pour commencer.</div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-body">
+          <h3>Copiez la réponse de l'IA</h3>
+          <p>Prenez n'importe quel texte généré par ChatGPT, Claude, Gemini ou une autre IA et copiez-le.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-body">
+          <h3>Collez-le dans Vérif-IA</h3>
+          <p>Collez le texte dans la zone d'analyse et cliquez sur "Analyser". C'est tout.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-body">
+          <h3>Les erreurs s'affichent en rouge</h3>
+          <p>Chaque affirmation incorrecte est surlignée. Survolez-la pour voir l'explication.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <div class="step-body">
+          <h3>Utilisez le texte en toute confiance</h3>
+          <p>Corrigez les erreurs et partagez ou utilisez votre texte en sachant qu'il est fiable.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="tarifs">
+  <div class="section-eyebrow">Tarifs</div>
+  <div class="section-title">Transparent et abordable</div>
+  <div class="section-sub">Commencez gratuitement. Passez au plan supérieur quand vous en avez besoin.</div>
+  <div class="plans">
+    <div class="plan">
+      <div class="plan-top">
+        <div class="plan-name">Gratuit</div>
+        <div class="plan-price">0€</div>
+        <div class="plan-limit">5 analyses par jour</div>
+      </div>
+      <hr class="plan-divider" />
+      <ul class="plan-features">
+        <li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg> Surlignage des erreurs</li>
+        <li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg> Score de fiabilité</li>
+        <li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg> Explication des erreurs</li>
+      </ul>
+      <button class="plan-btn plan-btn-ghost">Commencer gratuitement</button>
+    </div>
+    <div class="plan featured">
+      <div class="plan-top">
+        <div class="plan-badge">Populaire</div>
+        <div class="plan-name">Étudiant</div>
+        <div class="plan-price">4€<sub>/mois</sub></div>
+        <div class="plan-limit">30 analyses par jour</div>
+      </div>
+      <hr class="plan-divider" />
+      <ul class="plan-features">
+        <li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg> Tout du plan Gratuit</li>
+        <li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg> Historique 30 jours</li>
+        <li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg> Export PDF</li>
+        <li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg> Support par email</li>
+      </ul>
+      <button class="plan-btn plan-btn-filled">Essayer 7 jours gratuits</button>
+    </div>
+    <div class="plan">
+      <div class="plan-top">
+        <div class="plan-name">Pro</div>
+        <div class="plan-price">15€<sub>/mois</sub></div>
+        <div class="plan-limit">Illimité</div>
+      </div>
+      <hr class="plan-divider" />
+      <ul class="plan-features">
+        <li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg> Tout du plan Étudiant</li>
+        <li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg> Historique illimité</li>
+        <li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg> Accès API</li>
+        <li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg> Support prioritaire</li>
+        <li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg> Analyses en lot</li>
+      </ul>
+      <button class="plan-btn plan-btn-ghost">Choisir Pro</button>
+    </div>
+  </div>
+</section>
+
+<div class="cta-section" id="cta">
+  <h2>Prêt à vérifier ?</h2>
+  <p>Rejoignez les premiers utilisateurs de Vérif-IA et ne faites plus jamais confiance à l'IA les yeux fermés.</p>
+  <div class="email-row">
+    <input type="email" placeholder="votre@email.com" />
+    <button class="btn-primary">S'inscrire</button>
+  </div>
+  <p class="cta-note">Gratuit pour toujours · Pas de carte bancaire · Résiliable à tout moment</p>
+</div>
+
+<footer>
+  <div class="footer-left">
+    <div class="logo-box" style="width:24px;height:24px;border-radius:5px">
+      <svg viewBox="0 0 24 24" style="width:13px;height:13px"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+    </div>
+    <span class="footer-brand">Vérif-IA</span>
+  </div>
+  <div class="footer-links">
+    <a href="#">Confidentialité</a>
+    <a href="#">CGU</a>
+    <a href="#">Contact</a>
+  </div>
+  <span class="footer-copy">© 2026 Vérif-IA · Fait avec soin</span>
+</footer>
+
+<script>
+  let dark = false;
+  function toggleTheme() {
+    dark = !dark;
+    document.documentElement.setAttribute('data-theme', dark ? 'dark' : '');
+    document.getElementById('themeBtn').textContent = dark ? '☀️' : '🌙';
+  }
+
+  const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  if (prefersDark) {
+    dark = true;
+    document.documentElement.setAttribute('data-theme', 'dark');
+    document.getElementById('themeBtn').textContent = '☀️';
+  }
+</script>
+</body>
+</html>
