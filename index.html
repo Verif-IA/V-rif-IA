@@ -524,11 +524,23 @@
 <div class="cta-section" id="cta">
   <h2>Prêt à vérifier ?</h2>
   <p>Rejoignez les premiers utilisateurs de Vérif-IA et ne faites plus jamais confiance à l'IA les yeux fermés.</p>
-  <div style="max-width:480px;margin:0 auto;">
-    <iframe data-tally-src="https://tally.so/embed/VLvVoa?alignLeft=1&hideTitle=1&transparentBackground=1&dynamicHeight=1" loading="lazy" width="100%" height="300" frameborder="0" marginheight="0" marginwidth="0" title="Vérif-IA — Liste d'attente"></iframe>
-    <script>var d=document,w="https://tally.so/widgets/embed.js",v=function(){if(typeof Tally!=="undefined")Tally.loadEmbeds();else d.querySelectorAll("iframe[data-tally-src]:not([src])").forEach(function(e){e.src=e.dataset.tallySrc})};if(typeof Tally!=="undefined")v();else if(d.querySelector('script[src="'+w+'"]')==null){var s=d.createElement("script");s.src=w;s.onload=v;s.onerror=v;d.body.appendChild(s);}<\/script>
-  </div>
+  <button class="btn-primary" onclick="openTally()" style="margin:0 auto">✦ Rejoindre la liste d'attente</button>
   <p class="cta-note">Gratuit pour toujours · Pas de carte bancaire · Résiliable à tout moment</p>
+</div>
+
+<div id="tallyOverlay" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);z-index:1000;align-items:center;justify-content:center;">
+  <div style="background:var(--surface);border-radius:16px;width:90%;max-width:520px;max-height:85vh;overflow:hidden;position:relative;">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:0.5px solid var(--border);">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <div class="logo-box" style="width:24px;height:24px;border-radius:5px">
+          <svg viewBox="0 0 24 24" style="width:13px;height:13px"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" stroke="#FAECE7" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <span style="font-size:14px;font-weight:500;color:var(--text)">Vérif-IA — Liste d'attente</span>
+      </div>
+      <button onclick="closeTally()" style="background:none;border:none;cursor:pointer;color:var(--text2);font-size:20px;line-height:1;padding:4px;">✕</button>
+    </div>
+    <iframe src="https://tally.so/embed/VLvVoa?alignLeft=1&hideTitle=1&transparentBackground=1&dynamicHeight=1" width="100%" height="460" frameborder="0" style="display:block;"></iframe>
+  </div>
 </div>
 
 <footer>
@@ -561,6 +573,19 @@
     document.getElementById('themeBtn').textContent = '☀️';
   }
 
+
+  function openTally() {
+    const overlay = document.getElementById('tallyOverlay');
+    overlay.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+  }
+  function closeTally() {
+    document.getElementById('tallyOverlay').style.display = 'none';
+    document.body.style.overflow = '';
+  }
+  document.getElementById('tallyOverlay').addEventListener('click', function(e) {
+    if (e.target === this) closeTally();
+  });
   function submitForm() {
     const email = document.getElementById('emailInput').value.trim();
     const reason = document.getElementById('reasonInput').value.trim();
