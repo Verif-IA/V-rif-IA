@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vérif-IA — Analyser un texte</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #F7F5F0; --surface: #FFFFFF; --surface2: #EDEAE4;
+      --border: rgba(0,0,0,0.09); --border2: rgba(0,0,0,0.15);
+      --text: #1C1C1A; --text2: #6B6B67; --text3: #9B9B97;
+      --red: #A32D2D; --red-dark: #791F1F; --red-light: #FAECE7; --red-border: #F09595;
+      --green: #2D6A3F; --green-light: #EDFAF1;
+      --r: 12px; --r-sm: 8px;
+    }
+    [data-theme="dark"] {
+      --bg: #131311; --surface: #1D1D1B; --surface2: #252522;
+      --border: rgba(255,255,255,0.08); --border2: rgba(255,255,255,0.14);
+      --text: #F0EDE8; --text2: #9B9B97; --text3: #5B5B57;
+      --red: #E24B4A; --red-dark: #F09595; --red-light: #2A1212; --red-border: #5C2020;
+      --green: #4CAF70; --green-light: #0F2A18;
+    }
+    body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; transition: background 0.25s, color 0.25s; }
+
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 13px 28px; background: var(--surface); border-bottom: 0.5px solid var(--border);
+    }
+    .nav-left { display: flex; align-items: center; gap: 10px; }
+    .nav-logo { display: flex; align-items: center; gap: 8px; text-decoration: none; }
+    .logo-box { width: 28px; height: 28px; background: var(--red); border-radius: var(--r-sm); display: flex; align-items: center; justify-content: center; }
+    .logo-box svg { width: 14px; height: 14px; stroke: #FAECE7; fill: none; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+    .nav-brand { font-size: 15px; font-weight: 600; color: var(--text); }
+    .nav-sep { width: 1px; height: 18px; background: var(--border2); }
+    .nav-page { font-size: 13px; color: var(--text2); }
+    .nav-right { display: flex; align-items: center; gap: 10px; }
+    .counter-badge { display: flex; align-items: center; gap: 6px; background: var(--surface2); border: 0.5px solid var(--border2); border-radius: 20px; padding: 5px 12px; font-size: 12px; color: var(--text2); }
+    .counter-dots { display: flex; gap: 3px; }
+    .counter-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--border2); transition: background 0.3s; }
+    .counter-dot.used { background: var(--red); }
+    .theme-toggle { width: 32px; height: 32px; border-radius: var(--r-sm); background: var(--surface2); border: 0.5px solid var(--border2); display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 15px; }
+    .btn-home { font-size: 13px; color: var(--text2); text-decoration: none; padding: 6px 12px; border: 0.5px solid var(--border2); border-radius: var(--r-sm); transition: background 0.15s; }
+    .btn-home:hover { background: var(--surface2); color: var(--text); }
+
+    .main { max-width: 760px; margin: 0 auto; padding: 2rem 24px 4rem; }
+    .page-title { font-family: 'DM Serif Display', serif; font-size: 28px; font-weight: 400; margin-bottom: 6px; }
+    .page-sub { font-size: 14px; color: var(--text2); margin-bottom: 2rem; }
+
+    .card { background: var(--surface); border: 0.5px solid var(--border2); border-radius: var(--r); padding: 1.25rem; margin-bottom: 1rem; }
+    .card-label { font-size: 12px; font-weight: 500; color: var(--text3); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px; }
+    textarea { width: 100%; min-height: 200px; resize: vertical; border: 0.5px solid var(--border2); border-radius: var(--r-sm); padding: 14px 16px; font-size: 14px; font-family: 'DM Sans', sans-serif; color: var(--text); background: var(--bg); line-height: 1.75; outline: none; transition: border-color 0.15s; }
+    textarea:focus { border-color: var(--red); }
+    textarea::placeholder { color: var(--text3); }
+
+    .btn-row { display: flex; gap: 10px; align-items: center; margin-top: 12px; }
+    .btn-analyze { display: flex; align-items: center; gap: 8px; background: var(--red); color: #fff; border: none; border-radius: var(--r-sm); padding: 11px 24px; font-size: 14px; font-weight: 500; font-family: 'DM Sans', sans-serif; cursor: pointer; transition: background 0.15s; }
+    .btn-analyze:hover { background: var(--red-dark); }
+    .btn-analyze:disabled { opacity: 0.4; cursor: not-allowed; }
+    .btn-clear { background: transparent; color: var(--text2); border: 0.5px solid var(--border2); border-radius: var(--r-sm); padding: 11px 18px; font-size: 14px; font-family: 'DM Sans', sans-serif; cursor: pointer; transition: background 0.15s; }
+    .btn-clear:hover { background: var(--surface2); }
+    .loading-text { font-size: 13px; color: var(--text2); display: none; align-items: center; gap: 8px; }
+    .spinner { width: 15px; height: 15px; border: 2px solid var(--border2); border-top-color: var(--red); border-radius: 50%; animation: spin 0.7s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .limit-box { background: var(--red-light); border: 0.5px solid var(--red-border); border-radius: var(--r); padding: 14px 18px; font-size: 14px; color: var(--red); display: none; align-items: center; gap: 10px; margin-bottom: 1rem; }
+
+    .result-card { display: none; }
+    .result-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; }
+    .result-title { font-size: 15px; font-weight: 500; }
+    .legend { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text2); }
+    .legend-swatch { width: 14px; height: 14px; border-radius: 3px; background: var(--red-light); border: 1px solid var(--red-border); }
+    .result-text { font-size: 15px; line-height: 2; color: var(--text); }
+    .false-mark { background: var(--red-light); border-bottom: 2px solid var(--red-border); border-radius: 3px; padding: 1px 4px; cursor: help; position: relative; }
+    .false-mark:hover { background: #F5CECE; }
+    [data-theme="dark"] .false-mark:hover { background: #3D1515; }
+    .tooltip { display: none; position: absolute; left: 0; top: calc(100% + 8px); background: var(--surface); border: 0.5px solid var(--border2); border-radius: var(--r-sm); padding: 10px 14px; font-size: 12px; color: var(--text2); width: 250px; z-index: 10; line-height: 1.55; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
+    .false-mark:hover .tooltip { display: block; }
+
+    .stats-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 1.25rem; }
+    .stat { background: var(--surface2); border-radius: var(--r-sm); padding: 12px 16px; text-align: center; }
+    .stat-num { font-size: 24px; font-weight: 600; }
+    .stat-num.red { color: var(--red); }
+    .stat-num.green { color: var(--green); }
+    .stat-lbl { font-size: 12px; color: var(--text2); margin-top: 2px; }
+
+    .result-actions { display: flex; gap: 8px; margin-top: 1rem; }
+    .btn-action { display: flex; align-items: center; gap: 6px; background: transparent; border: 0.5px solid var(--border2); border-radius: var(--r-sm); padding: 8px 14px; font-size: 13px; color: var(--text2); cursor: pointer; font-family: 'DM Sans', sans-serif; transition: background 0.15s; }
+    .btn-action:hover { background: var(--surface2); color: var(--text); }
+    .btn-action svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; }
+
+    .error-box { background: var(--red-light); border: 0.5px solid var(--red-border); border-radius: var(--r-sm); padding: 12px 16px; font-size: 13px; color: var(--red); }
+
+    .upgrade-banner { background: var(--surface); border: 0.5px solid var(--border2); border-radius: var(--r); padding: 1.25rem 1.5rem; display: none; align-items: center; justify-content: space-between; gap: 16px; margin-top: 1rem; }
+    .upgrade-text h3 { font-size: 14px; font-weight: 500; margin-bottom: 3px; }
+    .upgrade-text p { font-size: 13px; color: var(--text2); }
+    .btn-upgrade { background: var(--red); color: #fff; border: none; border-radius: var(--r-sm); padding: 9px 20px; font-size: 13px; font-weight: 500; font-family: 'DM Sans', sans-serif; cursor: pointer; white-space: nowrap; text-decoration: none; display: inline-block; }
+    .btn-upgrade:hover { background: var(--red-dark); }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-left">
+    <a class="nav-logo" href="index.html">
+      <div class="logo-box"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+      <span class="nav-brand">Vérif-IA</span>
+    </a>
+    <div class="nav-sep"></div>
+    <span class="nav-page">Analyseur</span>
+  </div>
+  <div class="nav-right">
+    <div class="counter-badge">
+      <div class="counter-dots" id="counterDots"></div>
+      <span id="counterText">5 analyses restantes</span>
+    </div>
+    <button class="theme-toggle" onclick="toggleTheme()" id="themeBtn">🌙</button>
+    <a class="btn-home" href="index.html">← Accueil</a>
+  </div>
+</nav>
+
+<div class="main">
+  <h1 class="page-title">Analysez votre texte</h1>
+  <p class="page-sub">Collez une réponse d'IA ci-dessous — les affirmations incorrectes seront surlignées en rouge.</p>
+
+  <div class="limit-box" id="limitBox">
+    ⚠️ Vous avez utilisé vos <strong>&nbsp;5 analyses gratuites&nbsp;</strong> d'aujourd'hui. Revenez demain ou passez au plan Étudiant.
+  </div>
+
+  <div class="card">
+    <div class="card-label">Texte à analyser</div>
+    <textarea id="inputText" placeholder="Collez ici le texte généré par une IA (ChatGPT, Claude, Gemini...) que vous souhaitez vérifier."></textarea>
+    <div class="btn-row">
+      <button class="btn-analyze" id="analyzeBtn" onclick="analyze()">
+        <svg style="width:15px;height:15px;stroke:#fff;fill:none;stroke-width:2;stroke-linecap:round" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        Analyser
+      </button>
+      <button class="btn-clear" onclick="clearAll()">Effacer</button>
+      <div class="loading-text" id="loadingText"><div class="spinner"></div>Analyse en cours…</div>
+    </div>
+  </div>
+
+  <div class="card result-card" id="resultCard">
+    <div class="result-header">
+      <span class="result-title">Résultat de l'analyse</span>
+      <div class="legend"><span class="legend-swatch"></span> Affirmation incorrecte</div>
+    </div>
+    <div class="result-text" id="resultText"></div>
+    <div class="stats-row" id="statsRow"></div>
+    <div class="result-actions">
+      <button class="btn-action" onclick="copyResult()">
+        <svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+        Copier
+      </button>
+      <button class="btn-action" onclick="clearAll()">
+        <svg viewBox="0 0 24 24"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4"/></svg>
+        Nouvelle analyse
+      </button>
+    </div>
+  </div>
+
+  <div class="upgrade-banner" id="upgradeBanner">
+    <div class="upgrade-text">
+      <h3>Vous approchez de votre limite</h3>
+      <p>Passez au plan Étudiant pour 30 analyses par jour à seulement 4€/mois.</p>
+    </div>
+    <a class="btn-upgrade" href="https://tally.so/r/VLvVoa" target="_blank">Passer au Pro</a>
+  </div>
+</div>
+
+<script>
+  const MAX_DAILY = 5;
+  const STORAGE_KEY = 'verifIA_usage';
+
+  function getUsage() {
+    try {
+      const data = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+      const today = new Date().toDateString();
+      if (data.date !== today) return { date: today, count: 0 };
+      return data;
+    } catch(e) { return { date: new Date().toDateString(), count: 0 }; }
+  }
+
+  function saveUsage(u) { localStorage.setItem(STORAGE_KEY, JSON.stringify(u)); }
+  function getRemaining() { return Math.max(0, MAX_DAILY - getUsage().count); }
+
+  function updateCounter() {
+    const remaining = getRemaining();
+    const used = MAX_DAILY - remaining;
+    document.getElementById('counterText').textContent = remaining + ' analyse' + (remaining > 1 ? 's' : '') + ' restante' + (remaining > 1 ? 's' : '');
+    const dots = document.getElementById('counterDots');
+    dots.innerHTML = '';
+    for (let i = 0; i < MAX_DAILY; i++) {
+      const d = document.createElement('div');
+      d.className = 'counter-dot' + (i < used ? ' used' : '');
+      dots.appendChild(d);
+    }
+    if (remaining === 0) {
+      document.getElementById('limitBox').style.display = 'flex';
+      document.getElementById('analyzeBtn').disabled = true;
+    }
+    if (remaining <= 2 && remaining > 0) {
+      document.getElementById('upgradeBanner').style.display = 'flex';
+    }
+  }
+
+  async function analyze() {
+    const text = document.getElementById('inputText').value.trim();
+    if (!text || getRemaining() <= 0) return;
+
+    const btn = document.getElementById('analyzeBtn');
+    const loading = document.getElementById('loadingText');
+    btn.disabled = true;
+    loading.style.display = 'flex';
+    document.getElementById('resultCard').style.display = 'none';
+
+    try {
+      const res = await fetch("https://api.anthropic.com/v1/messages", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "anthropic-dangerous-direct-browser-access": "true" },
+        body: JSON.stringify({
+          model: "claude-sonnet-4-20250514",
+          max_tokens: 2000,
+          system: `Tu es un vérificateur de faits rigoureux. L'utilisateur te soumet un texte produit par une IA.
+Identifie les affirmations factuellement incorrectes.
+Réponds UNIQUEMENT avec un JSON valide, sans texte avant ni après, sans backticks.
+Format : {"segments":[{"text":"portion exacte","false":false},{"text":"portion fausse","false":true,"reason":"explication courte"}],"total_false":0,"total_claims":0}
+Règles : reproduis le texte COMPLET, false:true seulement si clairement faux, reason en français max 15 mots.`,
+          messages: [{ role: "user", content: text }]
+        })
+      });
+
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      const data = await res.json();
+      const raw = (data.content || []).map(i => i.text || '').join('').trim();
+      const result = JSON.parse(raw.replace(/^```json\s*/,'').replace(/^```\s*/,'').replace(/\s*```$/,'').trim());
+
+      const usage = getUsage();
+      usage.count++;
+      saveUsage(usage);
+      updateCounter();
+      renderResult(result);
+
+    } catch(e) {
+      document.getElementById('resultCard').style.display = 'block';
+      document.getElementById('resultText').innerHTML = '<div class="error-box">Une erreur est survenue. Réessayez.</div>';
+      btn.disabled = false;
+    }
+
+    loading.style.display = 'none';
+    if (getRemaining() > 0) btn.disabled = false;
+  }
+
+  function renderResult(result) {
+    if (!result.segments) {
+      document.getElementById('resultText').innerHTML = '<div class="error-box">Réessayez.</div>';
+      document.getElementById('resultCard').style.display = 'block';
+      return;
+    }
+    document.getElementById('resultText').innerHTML = result.segments.map(s =>
+      s.false
+        ? `<span class="false-mark">${esc(s.text)}<span class="tooltip">✗ ${esc(s.reason || 'Affirmation incorrecte')}</span></span>`
+        : esc(s.text)
+    ).join('');
+
+    const f = result.total_false || 0;
+    const t = result.total_claims || 0;
+    const a = t > 0 ? Math.round((1 - f/t)*100) : 100;
+    document.getElementById('statsRow').innerHTML = `
+      <div class="stat"><div class="stat-num ${f > 0 ? 'red' : 'green'}">${f}</div><div class="stat-lbl">Erreur${f>1?'s':''} détectée${f>1?'s':''}</div></div>
+      <div class="stat"><div class="stat-num">${t}</div><div class="stat-lbl">Affirmations analysées</div></div>
+      <div class="stat"><div class="stat-num ${a>=80?'green':a>=50?'':'red'}">${a}%</div><div class="stat-lbl">Fiabilité estimée</div></div>`;
+    document.getElementById('resultCard').style.display = 'block';
+    document.getElementById('resultCard').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+
+  function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+  function clearAll() {
+    document.getElementById('inputText').value = '';
+    document.getElementById('resultCard').style.display = 'none';
+  }
+
+  function copyResult() {
+    navigator.clipboard.writeText(document.getElementById('inputText').value);
+  }
+
+  let dark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  function toggleTheme() {
+    dark = !dark;
+    document.documentElement.setAttribute('data-theme', dark ? 'dark' : '');
+    document.getElementById('themeBtn').textContent = dark ? '☀️' : '🌙';
+  }
+  if (dark) { document.documentElement.setAttribute('data-theme','dark'); document.getElementById('themeBtn').textContent='☀️'; }
+
+  updateCounter();
+</script>
+</body>
+</html>
